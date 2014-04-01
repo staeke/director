@@ -1,8 +1,8 @@
 
 
 //
-// Generated on Fri Dec 27 2013 12:02:11 GMT-0500 (EST) by Nodejitsu, Inc (Using Codesurgeon).
-// Version 1.2.2
+// Generated on Tue Apr 01 2014 11:43:26 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
+// Version 1.2.3
 //
 
 (function (exports) {
@@ -86,10 +86,29 @@ var listener = {
         // upon initial page load. Since the handler is run manually in init(),
         // this would cause Chrome to run it twise. Currently the only
         // workaround seems to be to set the handler after the initial page load
+        // We then need to keep track of outstanding fire requests
         // http://code.google.com/p/chromium/issues/detail?id=63040
-        setTimeout(function() {
-          window.onpopstate = onchange;
-        }, 500);
+        var fireOnReady = false;
+        var fire = this.fire;
+        this.fire = function() {
+          fireOnReady = true;
+        };
+        var onDOMReady = function() {
+          setTimeout(function() {
+            self.fire = fire;
+            window.onpopstate = onchange;
+            if (fireOnReady) {
+              self.fire();
+            }
+          }, 1)
+        };
+
+        if(document.readyState === 'complete') {
+          onDOMReady();
+        }
+        else {
+          window.addEventListener('onload', onDOMReady);
+        }
       }
       else {
         window.onhashchange = onchange;
