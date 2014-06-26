@@ -1,5 +1,38 @@
 var browser_history_support = (window.history != null ? window.history.pushState : null) != null;
 
+// This test doesn't use the createTest since createTest runs init on the router before
+// running the test, which is partially what we want to test. Additionally this needs to be the
+// first test in the file as onpopstate will have been remapped otherwise, preventing the fail
+// demonstrated by first router initialization on page load
+asyncTest('fire the correct route when initializing the router', function(){
+    var router = new Router({
+            on: function(){
+                clearTimeout(t);
+                ok(true);
+                finalize();
+            }
+        }),
+        finalize = function () {
+            router.destroy();
+            start();
+        },
+        t = setTimeout(function () {
+            ok(false, 'route was not fired on initial navigation');
+            finalize();
+        }, 1000);
+    router.configure({
+        html5history: true,
+        run_handler_in_init: false
+    });
+    router.init();
+    try {
+        router.setRoute('/');
+    }
+    catch(e){
+        ok(false,'Exception thrown: ' + e.toString());
+    }
+});
+
 createTest('Nested route with the many children as a tokens, callbacks should yield historic params', {
   '/a': {
     '/:id': {
