@@ -1,7 +1,7 @@
 
 
 //
-// Generated on Tue Apr 01 2014 11:43:26 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
+// Generated on Thu Jun 26 2014 10:43:17 GMT+0100 (BST) by Nodejitsu, Inc (Using Codesurgeon).
 // Version 1.2.3
 //
 
@@ -106,8 +106,11 @@ var listener = {
         if(document.readyState === 'complete') {
           onDOMReady();
         }
-        else {
-          window.addEventListener('onload', onDOMReady);
+        else if (window.addEventListener) {
+          window.addEventListener('load', onDOMReady, false);
+        }
+        else if (window.attachEvent) {
+          window.attachEvent('onload', onDOMReady);
         }
       }
       else {
