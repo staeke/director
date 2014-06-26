@@ -1,7 +1,7 @@
 
 
 //
-// Generated on Tue Apr 01 2014 11:43:26 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
+// Generated on Thu Jun 26 2014 15:18:58 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
 // Version 1.2.3
 //
 
@@ -165,7 +165,10 @@ var listener = {
     }
 
     if (this.history === true) {
-      window.history.pushState({}, document.title, s);
+      var current = location.pathname + location.search;
+      if (current !== s) {
+          window.history.pushState({}, document.title, s);
+      }
       // Fire an onpopstate event manually since pushing does not obviously
       // trigger the pop event.
       this.fire();
