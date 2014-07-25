@@ -1,7 +1,7 @@
 
 
 //
-// Generated on Thu Jun 26 2014 15:18:58 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
+// Generated on Thu Jul 24 2014 14:05:13 GMT-0700 (PDT) by Nodejitsu, Inc (Using Codesurgeon).
 // Version 1.2.3
 //
 
@@ -54,9 +54,9 @@ var listener = {
     }
   },
 
-  fire: function () {
+  fire: function (state) {
     if (this.mode === 'modern') {
-      this.history === true ? window.onpopstate() : window.onhashchange();
+      this.history === true ? window.onpopstate({ state: state || {} }) : window.onhashchange();
     }
     else {
       this.onHashChanged();
@@ -158,7 +158,7 @@ var listener = {
     }
   },
 
-  setHash: function (s) {
+  setHash: function (s, state) {
     // Mozilla always adds an entry to the history
     if (this.mode === 'legacy') {
       this.writeFrame(s);
@@ -166,12 +166,12 @@ var listener = {
 
     if (this.history === true) {
       var current = location.pathname + location.search;
-      if (current !== s) {
-          window.history.pushState({}, document.title, s);
+      if (current !== s || state) {
+          window.history.pushState(state || {}, document.title, s);
       }
       // Fire an onpopstate event manually since pushing does not obviously
       // trigger the pop event.
-      this.fire();
+      this.fire(state);
     } else {
       dloc.hash = (s[0] === '/') ? s : '/' + s;
     }
@@ -256,20 +256,22 @@ Router.prototype.explode = function () {
   return v.slice(1, v.length).split("/");
 };
 
-Router.prototype.setRoute = function (i, v, val) {
+Router.prototype.setRoute = function (i, v, val, state) {
   var url = this.explode();
 
   if (typeof i === 'number' && typeof v === 'string') {
     url[i] = v;
+	  state = val;
   }
   else if (typeof val === 'string') {
     url.splice(i, v, s);
   }
   else {
     url = [i];
+	  state = v;
   }
 
-  listener.setHash(url.join('/'));
+  listener.setHash(url.join('/'), state);
   return url;
 };
 
